@@ -1,0 +1,32 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block content %}
+<a href="/logout">ログアウト</a>
+<!-- <form method="POST"> -->
+    
+{% for table_list in table_lists %}
+    <form method="POST" action="{{url_for('app.show_work_table')}}">
+        {{form.csrf_token}}
+
+        {{form.year(value=table_list.year)}}
+        {{form.month(value=table_list.month)}}
+        {{form.day(value=table_list.day)}}
+        {{table_list.month}}
+        {{table_list.day}}
+        {{form.date_attribute(value=table_list.date_attribute)}}
+        {{form.late_early(value=table_list.late_early)}}
+        {{form.start_at(value=table_list.start_at)}}
+        {{form.end_at(value=table_list.end_at)}}
+        {{form.working_hour(value=table_list.working_hour)}}
+        {{form.recess_hour(value=table_list.recess_hour)}}
+        {{form.extra_hour(value=table_list.extra_hour)}}
+        {{form.graveyard_shift_hour(value=table_list.graveyard_shift_hour)}}
+        {{form.holiday_shift_hour(value=table_list.holiday_shift_hour)}}
+        {{form.work_content(value=table_list.work_content)}}
+        {{form.about_attendance(value=table_list.about_attendance)}}
+        
+        {{form.submit()}}
+    </form>
+{% endfor %}
+<!-- </form> -->
+{% endblock %}
