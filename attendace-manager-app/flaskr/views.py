@@ -1,8 +1,8 @@
 from traceback import print_tb
 from flask import Blueprint, request, render_template, redirect, url_for
 from flask_login import login_user, login_required, logout_user, current_user
-from flaskr.forms import CalendarForm, AbisolCalendarForm, LoginForm, RegisterForm, UpdateWorkTableRecordForm
-from flaskr.models import db, Event, Abisol_Member, Work_Table_Record
+from flaskr.forms import AbisolCalendarForm, LoginForm, RegisterForm, UpdateWorkTableRecordForm
+from flaskr.models import db, Abisol_Member, Work_Table_Record
 import calendar as cldr
 import datetime
 import pytz
@@ -93,6 +93,7 @@ def show_work_table():
     id = current_user.id
     today = datetime.date.today()
     record = Work_Table_Record.select_by_abisol_member_id_and_date_time(id, now_year, now_month)
+    # 今月の勤務表レコードが存在しない場合には作成
     if not record:
         for cl_week in calendar:
             for cl_day in cl_week:
@@ -116,12 +117,14 @@ def show_work_table():
                     )
                     wtr.add_work_table_record()
     
+    # リクエストメソッドがPOSTの場合
     if request.method == 'POST':
         abi_id = id
         y = form.year.data
         m = form.month.data
         d = form.day.data
 
+        # データの詰め替え用意
         date_attribute = form.date_attribute.data
         late_early = form.late_early.data
         start_at = form.start_at.data
@@ -134,8 +137,7 @@ def show_work_table():
         work_content = form.work_content.data
         about_attendance = form.about_attendance.data
 
-        print(start_at)
-
+        # データ詰め替えの実施
         with db.session.begin(subtransactions=True):
             work_table = Work_Table_Record.query.filter_by(abisol_member_id=abi_id, year=y, month=m, day=d).first()
 
@@ -152,5 +154,6 @@ def show_work_table():
             work_table.about_attendance = about_attendance
         db.session.commit()
         return redirect(url_for('app.show_work_table'))
+
     table_lists = Work_Table_Record.query.order_by(Work_Table_Record.day).filter_by(abisol_member_id=id, year=now_year, month=now_month)
     return render_template('abisol_calendar.html', form=form, table_lists=table_lists)

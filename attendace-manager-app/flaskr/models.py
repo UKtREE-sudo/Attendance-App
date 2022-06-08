@@ -8,37 +8,47 @@ from flask_login import UserMixin
 def load_user(user_id):
     return Abisol_Member.query.get(user_id)
 
+# 勤務表使用ユーザモデル
 class Abisol_Member(UserMixin, db.Model):
 
+    # テーブル名
     __tablename__ = 'abisol_members'
 
+    # カラム 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), index=True)
     password = db.Column(db.String(128), nullable=False)
 
+    # コンストラクタ
     def __init__(self, email, username, password):
         self.email = email
         self.username = username
         self.password = generate_password_hash(password).decode('utf-8')
 
+    # パスワード判定メソッド
     def validate_password(self, password):
         return check_password_hash(self.password, password)
 
+    # ユーザ追加メソッド
     def add_user(self):
         with db.session.begin(subtransactions=True):
             db.session.add(self)
         db.session.commit()
 
+    # ユーザ検索メソッド
     @classmethod
     def select_by_email(cls, email):
         return cls.query.filter_by(email=email).first()
 
 
+# 勤務表モデル
 class Work_Table_Record(db.Model):
 
+    # テーブル名
     __tablename__ = 'work_table_records'
     
+    # カラム
     abisol_member_id = db.Column(db.Integer, db.ForeignKey('abisol_members.id'), primary_key=True)
     year = db.Column(db.String, primary_key=True)
     month = db.Column(db.String, primary_key=True)
@@ -55,6 +65,7 @@ class Work_Table_Record(db.Model):
     work_content = db.Column(db.String(128), nullable=True)
     about_attendance = db.Column(db.String(128), nullable=True)
 
+    # コンストラクタ
     def __init__(self, abisol_member_id, year, month, day, date_attribute, late_early, start_at, end_at, working_hour, recess_hour, extra_hour, graveyard_shift_hour, holiday_shift_hour, work_content, about_attendance):
         self.abisol_member_id = abisol_member_id
         self.year = year
@@ -72,19 +83,13 @@ class Work_Table_Record(db.Model):
         self.holiday_shift_hour = holiday_shift_hour
         self.about_attendance = about_attendance
 
+    # レコード追加メソッド
     def add_work_table_record(self):
         with db.session.begin(subtransactions=True):
             db.session.add(self)
         db.session.commit()
 
+    # レコード検索メソッド
     @classmethod
     def select_by_abisol_member_id_and_date_time(cls, abisol_member_id, year, month):
         return cls.query.filter_by(abisol_member_id=abisol_member_id, year=year, month=month).first()    
-
-
-class Event():
-
-    def __init__(self, title, start, end):
-        self.title = title
-        self.start = start
-        self.end = end

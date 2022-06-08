@@ -10,13 +10,7 @@ from wtforms import ValidationError
 from flaskr.models import Abisol_Member
 
 
-# ログイン画面で利用
-class CalendarForm(Form):
-    title = StringField('タイトル: ')
-    start = DateField('始業: ')
-    end = DateField('終業: ')
-    submit = SubmitField('登録')
-
+# 勤務表フォーム
 class AbisolCalendarForm(Form):
     calendar_id = HiddenField('hidden')
     date = StringField('')
@@ -24,11 +18,13 @@ class AbisolCalendarForm(Form):
     end = TimeField('')
     submit = SubmitField('更新')
 
+# ログインフォーム
 class LoginForm(Form):
     email = StringField('メール: ', validators=[DataRequired(), Email()])
     password = PasswordField('パスワード: ', validators=[DataRequired()])
     submit = SubmitField('ログイン')
 
+# 登録フォーム
 class RegisterForm(Form):
     email = StringField('メール: ', validators=[DataRequired(), Email()])
     username = StringField('ユーザー名: ', validators=[DataRequired()])
@@ -44,6 +40,7 @@ class RegisterForm(Form):
         if Abisol_Member.select_by_email(field.data):
             raise ValidationError('このメールアドレスは既に使用されています')
 
+# 勤務表更新フォーム
 class UpdateWorkTableRecordForm(Form):
     abisol_member_id = HiddenField()
     year = HiddenField()
